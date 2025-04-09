@@ -1,0 +1,186 @@
+/* Benefits Section */
+.benefit-card {
+    background-color: var(--mp-white);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background-color: var(--mp-accent);
+      transition: all 0.3s ease;
+    }
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      
+      &:before {
+        width: 100%;
+        opacity: 0.05;
+      }
+    }
+  }
+  
+  .benefit-icon {
+    font-size: 2.5rem;
+    color: var(--mp-accent);
+    margin-bottom: 20px;
+  }
+  
+  .benefit-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+  
+  /* Success Stories */
+  .story-card {
+    background-color: var(--mp-white);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    height: 100%;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .story-image-container {
+    margin-bottom: 20px;
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+    
+    img {
+      border-radius: 50%;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  .story-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 5px;
+  }
+  
+  .craft-type {
+    color: var(--mp-accent);
+    font-weight: 500;
+    margin-bottom: 15px;
+  }
+  
+  .story-text {
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  
+  .story-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+  }
+  
+  .stat-item {
+    text-align: center;
+  }
+  
+  .stat-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--mp-accent);
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--mp-medium-brown);
+  }
+  
+  /* Eligibility Section */
+  .eligibility-item {
+    background-color: var(--mp-white);
+    padding: 30px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .eligibility-icon {
+    font-size: 2.5rem;
+    color: var(--mp-accent);
+    margin-bottom: 20px;
+  }
+  
+  .eligibility-item h3 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+  
+  /* Partners Section */
+  .partner-logo {
+    background-color: var(--mp-white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  /* Apply Section */
+  .apply-card {
+    background-color: var(--mp-white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .apply-header {
+    background-color: var(--mp-dark-brown);
+    color: var(--mp-white);
+    padding: 20px 30px;
+    text-align: center;
+  }
+  
+  .apply-header h3 {
+    color: var(--mp-white);
+    margin-bottom: 5px;
+  }
+  
+  .apply-form {
+    padding: 30px;
+  }
+  
+  @media (max-width: 767px) {
+    .benefit-card, .story-card, .eligibility-item {
+      margin-bottom: 20px;
+    }
+  }

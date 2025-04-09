@@ -1,0 +1,38 @@
+/* FAQ Section */
+.accordion-item {
+    border: none;
+    background-color: transparent;
+    margin-bottom: 15px;
+  }
+  
+  .accordion-button {
+    background-color: var(--mp-white);
+    color: var(--mp-dark-brown);
+    font-weight: 600;
+    padding: 15px 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    
+    &:not(.collapsed) {
+      background-color: var(--mp-light-brown);
+      color: var(--mp-white);
+    }
+    
+    &:focus {
+      box-shadow: none;
+      border-color: rgba(194, 94, 0, 0.25);
+    }
+  }
+  
+  .accordion-button::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%234D3319'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  }
+  
+  .accordion-button:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  }
+  
+  .accordion-body {
+    background-color: var(--mp-white);
+    padding: 15px 20px;
+    border-top: none;
+  }

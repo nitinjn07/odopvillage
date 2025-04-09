@@ -1,0 +1,126 @@
+/* Footer */
+.mp-footer {
+    background-color: var(--mp-dark-brown);
+    color: var(--mp-text-light);
+    padding: 80px 0 20px;
+    position: relative;
+  }
+  
+  .footer-logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--mp-white);
+  }
+  
+  .footer-about p {
+    margin-bottom: 25px;
+    opacity: 0.8;
+  }
+  
+  .footer-links h3, .footer-newsletter h3 {
+    color: var(--mp-white);
+    font-size: 1.3rem;
+    margin-bottom: 25px;
+    position: relative;
+    padding-bottom: 10px;
+    
+    &:after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background-color: var(--mp-accent);
+    }
+  }
+  
+  .footer-links ul {
+    list-style: none;
+    padding: 0;
+    
+    li {
+      margin-bottom: 12px;
+      
+      a {
+        color: rgba(255, 249, 237, 0.8);
+        transition: all 0.3s ease;
+        
+        &:hover {
+          color: var(--mp-accent);
+          padding-left: 5px;
+        }
+      }
+    }
+  }
+  
+  .footer-newsletter p {
+    margin-bottom: 20px;
+    opacity: 0.8;
+  }
+  
+  .footer-bottom {
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 249, 237, 0.1);
+  }
+  
+  .copyright {
+    opacity: 0.7;
+  }
+  
+  .footer-bottom-links {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    
+    a {
+      color: rgba(255, 249, 237, 0.7);
+      
+      &:hover {
+        color: var(--mp-accent);
+      }
+    }
+  }
+  
+  /* Social Icons in Footer */
+  .footer-social {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  
+  .social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background-color: rgba(255, 249, 237, 0.1);
+    color: var(--mp-white);
+    border-radius: 50%;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: var(--mp-accent);
+      color: var(--mp-white);
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .footer-links, .footer-newsletter {
+      margin-top: 40px;
+    }
+    
+    .footer-bottom-links {
+      justify-content: flex-start;
+      margin-top: 15px;
+    }
+  }
+  .newsletter-form .btn 
+  {
+   color: #692e04;
+   background: #FFFF;
+  }

@@ -1,0 +1,74 @@
+/* Program Timeline */
+.program-timeline {
+    position: relative;
+    margin: 40px 0;
+    
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50px;
+      width: 4px;
+      background-color: var(--mp-light-brown);
+    }
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-left: 100px;
+    margin-bottom: 50px;
+  }
+  
+  .timeline-number {
+    position: absolute;
+    left: 30px;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    background-color: var(--mp-accent);
+    color: var(--mp-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    z-index: 1;
+  }
+  
+  .timeline-content {
+    background-color: var(--mp-white);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    
+    h3 {
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+    }
+  }
+  
+  @media (max-width: 991px) {
+    .timeline-item {
+      padding-left: 80px;
+    }
+    
+    .program-timeline:before {
+      left: 40px;
+    }
+    
+    .timeline-number {
+      left: 20px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .timeline-item {
+      padding-left: 70px;
+    }
+    
+    .timeline-content {
+      padding: 15px;
+    }
+  }

@@ -1,0 +1,42 @@
+/* Forms */
+.form-label {
+    color: var(--mp-dark-brown);
+    font-weight: 500;
+  }
+  
+  .form-control, .form-select {
+    border: 1px solid rgba(122, 88, 52, 0.2);
+    padding: 10px 15px;
+    border-radius: 4px;
+    background-color: var(--mp-white);
+    
+    &:focus {
+      border-color: var(--mp-accent);
+      box-shadow: 0 0 0 0.2rem rgba(194, 94, 0, 0.25);
+    }
+  }
+  
+  .form-check-input:checked {
+    background-color: var(--mp-accent);
+    border-color: var(--mp-accent);
+  }
+  
+  /* Newsletter form */
+  .newsletter-form {
+    position: relative;
+    
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid rgba(255, 249, 237, 0.2);
+      background-color: rgba(255, 249, 237, 0.1);
+      color: var(--mp-white);
+      border-radius: 4px;
+      margin-bottom: 15px;
+      
+      &:focus {
+        outline: none;
+        border-color: var(--mp-accent);
+      }
+    }
+  }
