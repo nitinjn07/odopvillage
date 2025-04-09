@@ -28,8 +28,12 @@
   .navbar-dark .navbar-nav .nav-link:hover,
   .navbar-dark .navbar-nav .nav-link.active {
     color: var(--mp-white);
+    
   }
-  
+  a.nav-link.mp-btn-outline {
+    background: #c25e00;
+    padding: 6px !important;
+}
   .navbar-dark .navbar-nav .mp-btn-outline {
     margin-left: 15px;
   }
