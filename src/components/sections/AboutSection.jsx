@@ -1,5 +1,5 @@
 import React from "react";
-import { placeholders } from "../../assets/images/placeholder";
+import mplogo from "../../assets/images/mplogo.png";
 
 const AboutSection = () => {
   return (
@@ -7,7 +7,7 @@ const AboutSection = () => {
       <div className="container">
         <div className="section-header text-center">
           <h2>
-            About <span className="highlight">MP Art Propel</span>
+            About <span className="highlight">ODOP Village Accelerator</span>
           </h2>
           <div className="mp-divider"></div>
           <p className="section-subtitle">
@@ -17,9 +17,9 @@ const AboutSection = () => {
         <div className="row mt-5">
           <div className="col-md-6">
             <div className="about-image-container">
-              <div className="mp-art-border">
+              <div className="mp-art-border" style={{ background: "#FFFF" }}>
                 <img
-                  src={placeholders.about}
+                  src={mplogo}
                   alt="MP Craft Heritage"
                   className="img-fluid"
                 />

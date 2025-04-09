@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import logo from "../../assets/images/logo.png";
+// import logo from "../../assets/images/logo.png";
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
@@ -57,7 +57,9 @@ const Navbar = () => {
     >
       <div className="container">
         <Link className="navbar-brand" to="/">
-          <img src={logo} style={{ width: "180px", borderRadius: "20px" }} />
+          <h4>
+            ODOP <span className="highlight">VILLAGE ACCELERATOR</span>
+          </h4>
         </Link>
         <button
           className="navbar-toggler"
