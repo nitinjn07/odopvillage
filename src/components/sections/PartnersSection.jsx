@@ -1,12 +1,11 @@
 import React from "react";
-import partner1 from "../../assets/images/partner/1.png";
+
 import partner2 from "../../assets/images/partner/2.png";
 import partner3 from "../../assets/images/partner/3.png";
 import partner4 from "../../assets/images/partner/4.png";
 
 const PartnersSection = () => {
   const partners = [
-    { image: partner1, name: "Partner 1" },
     { image: partner2, name: "Partner 2" },
     { image: partner3, name: "Partner 3" },
     { image: partner4, name: "Partner 4" },
