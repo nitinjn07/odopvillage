@@ -3,40 +3,47 @@ import React from "react";
 const BenefitsSection = () => {
   const benefits = [
     {
-      icon: "fas fa-chalkboard-teacher",
-      title: "Personalized Mentorship",
+      icon: "🌟",
+      title: "One-on-One Expert Mentorship",
       description:
-        "One-on-one guidance from e-commerce and export experts who understand rural artisan businesses",
+        "Get personalized guidance from industry leaders who understand both local craftsmanship and global markets. Your dedicated mentor will help navigate your unique journey from district workshop to international success.",
     },
     {
-      icon: "fas fa-laptop-code",
-      title: "Digital Skills Training",
+      icon: "💰",
+      title: "ODOP Excellence Awards",
       description:
-        "Learn to create compelling product listings, manage inventory, and understand international e-commerce",
+        "Stand out performers receive direct funding to fuel their growth! Selected participants gain access to special financial support to take their products to the next level.",
     },
     {
-      icon: "fas fa-money-bill-wave",
-      title: "Financial Support",
+      icon: "🌎",
+      title: "Direct Access to Global Buyers",
       description:
-        "Access to grants, subsidies and special incentives for rural artisans and traditional craftspeople",
+        "Skip the middlemen! We connect you directly with serious buyers from national retail chains and international markets looking specifically for authentic MP products.",
     },
     {
-      icon: "fas fa-language",
-      title: "Language Support",
+      icon: "🚀",
+      title: "Skill-Building Masterclasses",
       description:
-        "Overcome language barriers with multilingual support for creating product descriptions and customer service",
+        "Learn exactly what you need to succeed globally: modern production techniques, quality standards, digital marketing, export compliance, and more—all tailored to your product category.",
     },
     {
-      icon: "fas fa-shipping-fast",
-      title: "Logistics Assistance",
+      icon: "💼",
+      title: "Powerful Partner Perks",
       description:
-        "Simplified international shipping and customs processes designed for rural businesses",
+        "Our partners offer exclusive advantages to program participants: Professional website development at zero cost, waived registration fees for major trade exhibitions, product photography and digital content creation, and special rates on packaging and logistics services.",
+      isList: true,
+      listItems: [
+        "Professional website development at zero cost",
+        "Waived registration fees for major trade exhibitions",
+        "Product photography and digital content creation",
+        "Special rates on packaging and logistics services",
+      ],
     },
     {
-      icon: "fas fa-users",
-      title: "Community Network",
+      icon: "🛠️",
+      title: "End-to-End Support System",
       description:
-        "Connect with fellow artisans and businesses to share experiences and collaborative opportunities",
+        "From product refinement to export documentation—we've got you covered at every step of your global journey.",
     },
   ];
 
@@ -46,11 +53,12 @@ const BenefitsSection = () => {
       <div className="container">
         <div className="section-header text-center">
           <h2>
-            Program <span className="highlight">Benefits</span>
+            Why Join <span className="highlight">ODOP Village Accelerator</span>
+            ?
           </h2>
           <div className="mp-divider"></div>
           <p className="section-subtitle">
-            What you gain by joining MP Art Propel
+            Transform Your Business with These Exclusive Benefits
           </p>
         </div>
         <div className="row mt-5 g-4">
@@ -58,13 +66,35 @@ const BenefitsSection = () => {
             <div className="col-lg-4 col-md-6" key={index}>
               <div className="benefit-card">
                 <div className="benefit-icon">
-                  <i className={benefit.icon}></i>
+                  <span className="emoji-icon">{benefit.icon}</span>
                 </div>
                 <h3>{benefit.title}</h3>
-                <p>{benefit.description}</p>
+                {benefit.isList ? (
+                  <>
+                    <p>{benefit.description.split(":")[0] + ":"}</p>
+                    <ul className="partner-perks-list">
+                      {benefit.listItems.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p>{benefit.description}</p>
+                )}
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="apply-now-container text-center mt-5">
+          <div className="apply-banner">
+            <h3>Limited spots available</h3>
+            <p>
+              Apply now to secure your place in this first-of-its-kind
+              accelerator program by the Government of Madhya Pradesh.
+            </p>
+            <button className="btn btn-primary btn-apply">Apply Now</button>
+          </div>
         </div>
       </div>
       <div className="mp-art-pattern-bottom"></div>

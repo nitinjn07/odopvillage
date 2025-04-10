@@ -28,10 +28,13 @@ const Footer = () => {
         <div className="row">
           <div className="col-lg-4">
             <div className="footer-about">
-              <h3 className="footer-logo">MP Art Propel</h3>
+              <h3 className="footer-logo">ODOP Village Accelerator</h3>
               <p>
-                Empowering artisans from Madhya Pradesh to share their craft
-                with the world through e-commerce acceleration and mentorship.
+                A flagship initiative by the Department of Industrial Policy and
+                Investment Promotion (DIPIP), Government of Madhya Pradesh.
+                Supporting grassroots enterprises, emerging businesses, and
+                production-linked value chains through mentorship, market
+                linkages, capacity building, and more.
               </p>
               <div className="footer-social">
                 <a href="#" className="social-icon">
@@ -66,35 +69,28 @@ const Footer = () => {
                   <a href="#program">Program</a>
                 </li>
                 <li>
-                  <a href="#success-stories">Success Stories</a>
+                  <a href="#eligibility">Eligibility</a>
                 </li>
                 <li>
-                  <a href="#apply">Apply Now</a>
+                  <a href="#faq">FAQ</a>
                 </li>
               </ul>
             </div>
           </div>
           <div className="col-lg-3 col-md-6">
             <div className="footer-links">
-              <h3>Resources</h3>
+              <h3>Contact Us</h3>
               <ul>
                 <li>
-                  <a href="#">E-commerce Guide</a>
+                  <i className="fas fa-map-marker-alt mr-2"></i> MPIDC Bhawan,
+                  Arera Hills, Bhopal
                 </li>
                 <li>
-                  <a href="#">Export Documentation</a>
+                  <i className="fas fa-envelope mr-2"></i>{" "}
+                  info@odopvillage.mp.gov.in
                 </li>
                 <li>
-                  <a href="#">Product Photography Tips</a>
-                </li>
-                <li>
-                  <a href="#">Pricing Calculator</a>
-                </li>
-                <li>
-                  <a href="#">Artisan Community</a>
-                </li>
-                <li>
-                  <a href="#">Success Stories</a>
+                  <i className="fas fa-phone mr-2"></i> +91 755 2555555
                 </li>
               </ul>
             </div>
@@ -134,18 +130,27 @@ const Footer = () => {
         </div>
         <div className="footer-bottom">
           <div className="row">
-            <div className="col-md-6">
-              <p className="copyright">
-                &copy; {new Date().getFullYear()} MP Art Propel. All Rights
-                Reserved.
+            <div className="col-12">
+              <p
+                className="copyright text-center"
+                style={{
+                  fontSize: "0.85rem",
+                  lineHeight: "1.6",
+                  color: "#777",
+                }}
+              >
+                © 2025 ODOP Village Accelerator. All rights reserved. ODOP
+                Village Accelerator and its logo are trademarks under the M.P.
+                Industrial Development Corporation (MPIDC). All rights are
+                reserved. The content, tools, and application framework on this
+                website are provided and managed by Incubation Masters. While
+                MPIDC owns and oversees the platform, all operational content
+                and services are the sole responsibility of Incubation Masters.
+                Any queries, issues, or clarifications related to the site's
+                content or services should be directed to them. This platform is
+                developed by MPIDC and powered by Incubation Masters. Best
+                viewed on modern browsers.
               </p>
-            </div>
-            <div className="col-md-6">
-              <div className="footer-bottom-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Cookie Policy</a>
-              </div>
             </div>
           </div>
         </div>

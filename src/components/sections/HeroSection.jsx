@@ -8,6 +8,26 @@ import bgImage3 from "../../assets/images/slider.png";
 const HeroSection = ({ useVideo = false }) => {
   // Array of background images for the slider
   const backgroundImages = [bgImage1, bgImage2, bgImage3];
+
+  // Array of slide content
+  const slideContent = [
+    {
+      title: "FROM LOCAL CRAFTSMANSHIP TO GLOBAL MARKETS",
+      subtitle:
+        "The first-ever accelerator program by ODOP Cell, MP Industrial Development Corporation, bringing Madhya Pradesh's unique products to the world stage",
+    },
+    {
+      title: "UNLOCK YOUR PRODUCT'S GLOBAL POTENTIAL",
+      subtitle:
+        "Expert guidance, market access, and business development for ODOP entrepreneurs across Madhya Pradesh",
+    },
+    {
+      title: "JOIN THE JOURNEY: LOCAL HANDS TO GLOBAL LANDS",
+      subtitle:
+        "Limited spots available for ambitious creators ready to transform district products into international brands",
+    },
+  ];
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Handle automatic image rotation
@@ -69,8 +89,10 @@ const HeroSection = ({ useVideo = false }) => {
               ODOP <span className="highlight">VILLAGE</span> Accelerator
             </h1>
             <p className="hero-subtitle">
-              A mentorship program designed to help Madhya Pradesh artisans and
-              small businesses build global brands through e-commerce
+              {slideContent[currentImageIndex].title}
+            </p>
+            <p className="hero-description">
+              {slideContent[currentImageIndex].subtitle}
             </p>
             <div className="hero-buttons">
               <a href="#apply" className="btn mp-btn-primary">
