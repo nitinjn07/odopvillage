@@ -37,17 +37,35 @@ const Footer = () => {
                 linkages, capacity building, and more.
               </p>
               <div className="footer-social">
-                <a href="#" className="social-icon">
+                <a
+                  href="https://www.facebook.com/MPIndustrialDevelopmentCorporation/"
+                  className="social-icon"
+                >
                   <i className="fab fa-facebook-f"></i>
                 </a>
-                <a href="#" className="social-icon">
+                <a
+                  href="https://x.com/MPIDC?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor"
+                  className="social-icon"
+                >
                   <i className="fab fa-twitter"></i>
                 </a>
-                <a href="#" className="social-icon">
+                <a
+                  href="https://www.instagram.com/mpidc_gomp?igsh=MXUyNWp6NDdmd3hoaw=="
+                  className="social-icon"
+                >
                   <i className="fab fa-instagram"></i>
                 </a>
-                <a href="#" className="social-icon">
+                <a
+                  href="https://www.linkedin.com/company/mpidc/"
+                  className="social-icon"
+                >
                   <i className="fab fa-linkedin-in"></i>
+                </a>
+                <a
+                  href="https://www.youtube.com/@mpidc2167"
+                  className="social-icon"
+                >
+                  <i className="fab fa-youtube"></i>
                 </a>
               </div>
             </div>
