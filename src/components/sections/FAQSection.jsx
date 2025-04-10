@@ -292,14 +292,14 @@ const FAQSection = () => {
                   className="fas fa-envelope"
                   style={{ color: "#FF8C00", marginRight: "10px" }}
                 ></i>
-                <span>info@odopvillage.mp.gov.in</span>
+                <span>exportcell@mpidc.co.in</span>
               </div>
               <div style={{ display: "flex", alignItems: "center" }}>
                 <i
                   className="fas fa-phone-alt"
                   style={{ color: "#FF8C00", marginRight: "10px" }}
                 ></i>
-                <span>+91 755 2555555</span>
+                <span>0755-2577145</span>
               </div>
             </div>
           </div>

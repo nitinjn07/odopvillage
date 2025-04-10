@@ -30,14 +30,9 @@ const BenefitsSection = () => {
       icon: "💼",
       title: "Powerful Partner Perks",
       description:
-        "Our partners offer exclusive advantages to program participants: Professional website development at zero cost, waived registration fees for major trade exhibitions, product photography and digital content creation, and special rates on packaging and logistics services.",
+        "Our partners offer exclusive advantages to program participants",
       isList: true,
-      listItems: [
-        "Professional website development at zero cost",
-        "Waived registration fees for major trade exhibitions",
-        "Product photography and digital content creation",
-        "Special rates on packaging and logistics services",
-      ],
+      listItems: [],
     },
     {
       icon: "🛠️",

@@ -87,10 +87,10 @@ const Footer = () => {
                 </li>
                 <li>
                   <i className="fas fa-envelope mr-2"></i>{" "}
-                  info@odopvillage.mp.gov.in
+                  exportcell@mpidc.co.in
                 </li>
                 <li>
-                  <i className="fas fa-phone mr-2"></i> +91 755 2555555
+                  <i className="fas fa-phone mr-2"></i> 0755-2577145
                 </li>
               </ul>
             </div>

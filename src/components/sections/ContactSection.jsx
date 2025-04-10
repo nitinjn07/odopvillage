@@ -89,39 +89,53 @@ const ContactSection = () => {
                 <i className="fas fa-map-marker-alt"></i>
                 <div>
                   <h3>Address</h3>
-                  <p>
-                    MP Art Propel Office, Hamidia Road, Bhopal, Madhya Pradesh
-                    462001
-                  </p>
+                  <p>MPIDC Bhawan, Arera Hills, Bhopal</p>
                 </div>
               </div>
               <div className="contact-item">
                 <i className="fas fa-phone-alt"></i>
                 <div>
                   <h3>Phone</h3>
-                  <p>Toll-Free: 1800-XXX-XXXX</p>
-                  <p>Helpline: +91-XXX-XXX-XXXX</p>
+
+                  <p>Helpline: 0755-2577145</p>
                 </div>
               </div>
               <div className="contact-item">
                 <i className="fas fa-envelope"></i>
                 <div>
                   <h3>Email</h3>
-                  <p>info@mpartpropel.org</p>
-                  <p>support@mpartpropel.org</p>
+                  <p>exportcell@mpidc.co.in</p>
                 </div>
               </div>
               <div className="social-links">
-                <a href="#" className="social-link">
+                <a
+                  href="https://www.facebook.com/MPIndustrialDevelopmentCorporation/"
+                  className="social-link"
+                >
                   <i className="fab fa-facebook-f"></i>
                 </a>
-                <a href="#" className="social-link">
+                <a
+                  href="https://x.com/MPIDC?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor"
+                  className="social-link"
+                >
                   <i className="fab fa-twitter"></i>
                 </a>
-                <a href="#" className="social-link">
+                <a
+                  href="https://www.instagram.com/mpidc_gomp?igsh=MXUyNWp6NDdmd3hoaw=="
+                  className="social-link"
+                >
                   <i className="fab fa-instagram"></i>
                 </a>
-                <a href="#" className="social-link">
+                <a
+                  href="https://www.linkedin.com/company/mpidc/"
+                  className="social-link"
+                >
+                  <i className="fab fa-linkedin"></i>
+                </a>
+                <a
+                  href="https://www.youtube.com/@mpidc2167"
+                  className="social-link"
+                >
                   <i className="fab fa-youtube"></i>
                 </a>
               </div>

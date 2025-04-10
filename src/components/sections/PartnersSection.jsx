@@ -20,7 +20,7 @@ const PartnersSection = () => {
             Our <span className="highlight">Partners</span>
           </h2>
           <div className="mp-divider"></div>
-          <p className="section-subtitle">Supporting MP Art Propel's mission</p>
+          {/* <p className="section-subtitle">Supporting MP Art Propel's mission</p> */}
         </div>
         <div className="partners-container mt-5">
           {partners.map((partner, index) => (

@@ -55,7 +55,7 @@ const SuccessStoriesSection = () => {
           {stories.map((story, index) => (
             <div className="col-md-4" key={index}>
               <div className="story-card">
-                <div className="story-image-container">
+                {/* <div className="story-image-container">
                   <div className="mp-art-border">
                     <img
                       src={story.image}
@@ -63,7 +63,7 @@ const SuccessStoriesSection = () => {
                       className="img-fluid"
                     />
                   </div>
-                </div>
+                </div> */}
                 <h3>{story.name}</h3>
                 <p className="craft-type">{story.craft}</p>
                 <p className="story-text">{story.story}</p>
@@ -79,11 +79,11 @@ const SuccessStoriesSection = () => {
             </div>
           ))}
         </div>
-        <div className="text-center mt-5">
+        {/* <div className="text-center mt-5">
           <a href="#" className="btn mp-btn-secondary">
             Read More Success Stories
           </a>
-        </div>
+        </div> */}
       </div>
       <div className="mp-art-pattern-bottom"></div>
     </section>
