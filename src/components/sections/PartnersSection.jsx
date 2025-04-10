@@ -1,13 +1,15 @@
 import React from "react";
-import { placeholders } from "../../assets/images/placeholder";
+import partner1 from "../../assets/images/partner/1.png";
+import partner2 from "../../assets/images/partner/2.png";
+import partner3 from "../../assets/images/partner/3.png";
+import partner4 from "../../assets/images/partner/4.png";
 
 const PartnersSection = () => {
   const partners = [
-    { image: placeholders.partner1, name: "Partner 1" },
-    { image: placeholders.partner2, name: "Partner 2" },
-    { image: placeholders.partner3, name: "Partner 3" },
-    { image: placeholders.partner4, name: "Partner 4" },
-    { image: placeholders.partner5, name: "Partner 5" },
+    { image: partner1, name: "Partner 1" },
+    { image: partner2, name: "Partner 2" },
+    { image: partner3, name: "Partner 3" },
+    { image: partner4, name: "Partner 4" },
   ];
 
   return (

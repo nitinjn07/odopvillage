@@ -57,9 +57,7 @@ const Navbar = () => {
     >
       <div className="container">
         <Link className="navbar-brand" to="/">
-          <h4>
-            ODOP <span className="highlight">VILLAGE ACCELERATOR</span>
-          </h4>
+          <h4>ODOP VILLAGE ACCELERATOR</h4>
         </Link>
         <button
           className="navbar-toggler"

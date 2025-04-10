@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 // Import multiple background images for the slider
-import bgImage1 from "../../assets/images/slider.png";
-import bgImage2 from "../../assets/images/slider.png";
-import bgImage3 from "../../assets/images/slider.png";
+import bgImage1 from "../../assets/images/slider/slider1.png";
+import bgImage2 from "../../assets/images/slider/slider2.png";
+import bgImage3 from "../../assets/images/slider/slider3.png";
 
 const HeroSection = ({ useVideo = false }) => {
   // Array of background images for the slider
@@ -29,17 +29,29 @@ const HeroSection = ({ useVideo = false }) => {
   ];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Handle automatic image rotation
+  // Handle automatic image rotation with smooth transitions
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) =>
+      changeSlide((prevIndex) =>
         prevIndex === backgroundImages.length - 1 ? 0 : prevIndex + 1
       );
-    }, 5000); // Change image every 5 seconds
+    }, 6000); // Change image every 6 seconds (slightly longer for better UX)
 
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
+
+  // Handle slide change with transition effect
+  const changeSlide = useCallback((indexFn) => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentImageIndex(indexFn);
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 100);
+    }, 500);
+  }, []);
 
   return (
     <section className="mp-hero" id="home">
@@ -60,12 +72,12 @@ const HeroSection = ({ useVideo = false }) => {
                 key={index}
                 className={`slider-image ${
                   index === currentImageIndex ? "active" : ""
-                }`}
+                } ${isTransitioning ? "transitioning" : ""}`}
                 style={{ backgroundImage: `url(${image})` }}
               ></div>
             ))}
 
-            {/* Optional: Navigation Dots */}
+            {/* Enhanced Navigation Dots */}
             <div className="slider-navigation">
               {backgroundImages.map((_, index) => (
                 <span
@@ -73,7 +85,7 @@ const HeroSection = ({ useVideo = false }) => {
                   className={`nav-dot ${
                     index === currentImageIndex ? "active" : ""
                   }`}
-                  onClick={() => setCurrentImageIndex(index)}
+                  onClick={() => changeSlide(() => index)}
                 ></span>
               ))}
             </div>
@@ -81,31 +93,55 @@ const HeroSection = ({ useVideo = false }) => {
         )}
       </div>
 
-      {/* Content Overlay */}
+      {/* Content Overlay with Enhanced Animation */}
       <div className="container position-relative">
         <div className="row align-items-center">
-          <div className="col-lg-6">
-            <h1 className="hero-title">
-              ODOP <span className="highlight">VILLAGE</span> Accelerator
-            </h1>
-            <p className="hero-subtitle">
-              {slideContent[currentImageIndex].title}
-            </p>
-            <p className="hero-description">
-              {slideContent[currentImageIndex].subtitle}
-            </p>
-            <div className="hero-buttons">
-              <a href="#apply" className="btn mp-btn-primary">
-                Apply Now
-              </a>
-              <a href="#about" className="btn mp-btn-secondary">
-                Learn More
-              </a>
+          <div className="col-lg-7">
+            <div className="hero-content-wrapper">
+              <div className="hero-eyebrow">Madhya Pradesh Initiative</div>
+              <h1 className="hero-title">
+                ODOP <span className="highlight">VILLAGE</span>{" "}
+                <span className="accent">Accelerator</span>
+              </h1>
+              <div className={`hero-subtitle ${isTransitioning ? "fade" : ""}`}>
+                {slideContent[currentImageIndex].title}
+              </div>
+              <div
+                className={`hero-description ${isTransitioning ? "fade" : ""}`}
+              >
+                {slideContent[currentImageIndex].subtitle}
+              </div>
+              <div className="hero-buttons">
+                <a href="#apply" className="btn mp-btn-primary">
+                  Apply Now
+                </a>
+                <a href="#about" className="btn mp-btn-secondary">
+                  Learn More
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="col-lg-5 d-none d-lg-block">
+            <div className="hero-badge">
+              <div className="badge-content">
+                <div className="badge-icon">
+                  <i className="fas fa-calendar-alt"></i>
+                </div>
+                <div className="badge-text">
+                  <span className="badge-label">Applications Close</span>
+                  <span className="badge-value">May 30, 2025</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div className="mp-art-pattern-bottom"></div>
+
+      {/* Decorative Elements */}
+      <div className="decoration-circle decoration-circle-1"></div>
+      <div className="decoration-circle decoration-circle-2"></div>
+      <div className="decoration-motif decoration-motif-1"></div>
     </section>
   );
 };
