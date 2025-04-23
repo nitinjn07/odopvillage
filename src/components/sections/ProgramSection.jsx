@@ -172,7 +172,9 @@ const ProgramSection = () => {
               Limited spots available for this exclusive government-backed
               accelerator program
             </p>
-            <button className="cta-button">Apply Now</button>
+            <a href="#apply" className="cta-button">
+              Apply Now
+            </a>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { Navigate } from "react-router-dom";
 
 const BenefitsSection = () => {
   const benefits = [
@@ -88,7 +89,9 @@ const BenefitsSection = () => {
               Apply now to secure your place in this first-of-its-kind
               accelerator program by the Government of Madhya Pradesh.
             </p>
-            <button className="btn btn-primary btn-apply">Apply Now</button>
+            <a href="#apply" className="btn btn-primary btn-apply">
+              Apply Now
+            </a>
           </div>
         </div>
       </div>

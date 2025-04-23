@@ -4,7 +4,7 @@ import AboutSection from "../components/sections/AboutSection";
 import BenefitsSection from "../components/sections/BenefitsSection";
 import ProgramSection from "../components/sections/ProgramSection";
 import SuccessStoriesSection from "../components/sections/SuccessStoriesSection";
-// import ApplySection from "../components/sections/ApplySection";
+import ApplySection from "../components/sections/ApplySection";
 // import EligibilitySection from "../components/sections/EligibilitySection";
 import PartnersSection from "../components/sections/PartnersSection";
 import FAQSection from "../components/sections/FAQSection";
@@ -77,7 +77,7 @@ const HomePage = () => {
       <BenefitsSection />
       <ProgramSection />
       <SuccessStoriesSection />
-      {/* <ApplySection /> */}
+      <ApplySection />
       {/* <EligibilitySection /> */}
       <PartnersSection />
       <FAQSection />
