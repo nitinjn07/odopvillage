@@ -1,98 +1,122 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const ApplySection = () => {
+  // Initial state matching the mongoose model structure
   const [formData, setFormData] = useState({
-    // Personal & Contact Information
-    fullName: "",
-    mobile: "",
-    email: "",
-    districtVillage: "",
-
-    // Product & Business Information
-    odopProduct: "",
-    businessName: "",
-    yearStarted: "",
-
-    // Entity & Ownership
-    entityType: "",
-    partOfSHG: "",
-    partOfSHGSpecify: "",
-    gstRegistered: "",
-    ownershipType: "",
-    productionStatus: "",
-
-    // Market & Sales Information
-    sellLocations: {
-      localMarkets: false,
-      withinDistrict: false,
-      withinMP: false,
-      outsideMP: false,
-      online: false,
+    personalInfo: {
+      fullName: "",
+      mobileNo: "",
+      email: "",
+      districtVillage: "",
     },
-    soldOutsideIndia: "",
-
-    // Operations & Product Details
-    teamSize: "",
-    monthlyProduction: "",
-    packaging: "",
-    monthlyRevenue: "",
-    website: "",
-    describeProduct: "",
-
-    // Materials, Certifications & Challenges
-    localRawMaterials: "",
-    certifications: {
-      gi: false,
-      fssai: false,
+    businessInfo: {
+      odopProduct: "",
+      businessName: "",
+      yearStarted: "",
     },
-    challenges: "",
-
-    // Support & Goals
-    supportRequired: [],
-    supportRequiredExtra: [],
-    oneYearGoal: "",
-
-    // Terms
-    termsCheck: false,
+    entityOwnership: {
+      entityType: "",
+      partOfSHGOrFPO: "",
+      partOfSHGOrFPOSpecify: "",
+      gstRegistration: "",
+      productOwnershipType: "",
+      productStatus: "",
+    },
+    marketSales: {
+      sellLocations: {
+        localMarkets: false,
+        withinDistrict: false,
+        outsideDistrictWithinState: false,
+        outsideState: false,
+        online: false,
+      },
+      salesOutsideIndia: "",
+    },
+    operationsProduct: {
+      teamSize: "",
+      monthlyProduction: "",
+      productionType: "",
+      monthlyRevenue: "",
+      websiteSocialMedia: "",
+      productDescription: "",
+    },
+    materialCertifications: {
+      localRawMaterial: "",
+      certifications: [],
+      challenges: "",
+    },
+    supportGoals: {
+      supportAreas: [],
+      supportAreasOther: "",
+      oneYearGoal: "",
+    },
+    termsAccepted: false,
   });
 
   const [validationErrors, setValidationErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [activeSection, setActiveSection] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (name.includes(".")) {
-      // Handle nested objects like sellLocations.localMarkets
-      const [parent, child] = name.split(".");
-      setFormData({
-        ...formData,
-        [parent]: {
-          ...formData[parent],
-          [child]: type === "checkbox" ? checked : value,
-        },
-      });
-    } else if (type === "checkbox" && Array.isArray(formData[name])) {
-      // Handle array values for checkboxes like supportRequired
-      const newArray = checked
-        ? [...formData[name], value]
-        : formData[name].filter((item) => item !== value);
+    // Parse the field path (e.g., "personalInfo.fullName" or "marketSales.sellLocations.localMarkets")
+    const fieldPath = name.split(".");
 
-      setFormData({
-        ...formData,
-        [name]: newArray,
-      });
-    } else {
-      // Handle simple fields
+    if (fieldPath.length === 1) {
+      // Simple field like termsAccepted
       setFormData({
         ...formData,
         [name]: type === "checkbox" ? checked : value,
       });
+    } else if (fieldPath.length === 2) {
+      // Two-level nested field like personalInfo.fullName
+      const [section, field] = fieldPath;
+
+      // Special handling for checkbox arrays
+      if (type === "checkbox" && Array.isArray(formData[section][field])) {
+        const newArray = checked
+          ? [...formData[section][field], value]
+          : formData[section][field].filter((item) => item !== value);
+
+        setFormData({
+          ...formData,
+          [section]: {
+            ...formData[section],
+            [field]: newArray,
+          },
+        });
+      } else {
+        // Regular field update
+        setFormData({
+          ...formData,
+          [section]: {
+            ...formData[section],
+            [field]: type === "checkbox" ? checked : value,
+          },
+        });
+      }
+    } else if (fieldPath.length === 3) {
+      // Three-level nested field like marketSales.sellLocations.localMarkets
+      const [section, subsection, field] = fieldPath;
+
+      setFormData({
+        ...formData,
+        [section]: {
+          ...formData[section],
+          [subsection]: {
+            ...formData[section][subsection],
+            [field]: type === "checkbox" ? checked : value,
+          },
+        },
+      });
     }
 
-    // Clear validation error when user starts typing
+    // Clear validation error for this field
     if (validationErrors[name]) {
       setValidationErrors({
         ...validationErrors,
@@ -101,41 +125,74 @@ const ApplySection = () => {
     }
   };
 
+  // Validate a single field
   const validateField = (name, value) => {
-    // Required fields
+    // Required fields based on the model's required: true properties
     const requiredFields = [
-      "fullName",
-      "mobile",
-      "email",
-      "districtVillage",
-      "odopProduct",
+      "personalInfo.fullName",
+      "personalInfo.mobileNo",
+      "personalInfo.email",
+      "personalInfo.districtVillage",
+      "businessInfo.odopProduct",
+      "entityOwnership.entityType",
+      "entityOwnership.partOfSHGOrFPO",
+      "entityOwnership.gstRegistration",
+      "entityOwnership.productOwnershipType",
+      "entityOwnership.productStatus",
+      "marketSales.salesOutsideIndia",
+      "operationsProduct.teamSize",
+      "operationsProduct.monthlyProduction",
+      "operationsProduct.productionType",
+      "operationsProduct.monthlyRevenue",
+      "operationsProduct.productDescription",
+      "materialCertifications.localRawMaterial",
+      "supportGoals.oneYearGoal",
+      "termsAccepted",
     ];
 
-    if (requiredFields.includes(name) && !value) {
+    if (
+      requiredFields.includes(name) &&
+      (!value || (Array.isArray(value) && value.length === 0))
+    ) {
       return "This field is required";
     }
 
-    if (name === "mobile" && value) {
+    // Field-specific validations
+    if (name === "personalInfo.mobileNo" && value) {
       const mobilePattern = /^[0-9]{10}$/;
       if (!mobilePattern.test(value.trim())) {
         return "Please enter a valid 10-digit mobile number";
       }
     }
 
-    if (name === "email" && value) {
+    if (name === "personalInfo.email" && value) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(value.trim())) {
         return "Please enter a valid email address";
       }
     }
 
-    if (name === "termsCheck" && !value) {
+    if (
+      (name === "businessInfo.yearStarted" ||
+        name === "operationsProduct.teamSize" ||
+        name === "operationsProduct.monthlyProduction" ||
+        name === "operationsProduct.monthlyRevenue") &&
+      value
+    ) {
+      const numberPattern = /^\d+$/;
+      if (!numberPattern.test(value.trim())) {
+        return "Please enter a valid number";
+      }
+    }
+
+    if (name === "termsAccepted" && !value) {
       return "You must agree to the terms and conditions";
     }
 
     return "";
   };
 
+  // Handle field blur for validation
   const handleBlur = (e) => {
     const { name, value, type, checked } = e.target;
     const fieldValue = type === "checkbox" ? checked : value;
@@ -147,96 +204,82 @@ const ApplySection = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Validate all required fields
+  // Validate all fields in a section
+  const validateSection = (sectionNumber) => {
     let errors = {};
     let isValid = true;
 
-    // Only validate fields that are required
-    const requiredFields = [
-      "fullName",
-      "mobile",
-      "email",
-      "districtVillage",
-      "odopProduct",
-      "termsCheck",
-    ];
+    // Define which fields to validate for each section
+    const sectionFields = {
+      1: [
+        "personalInfo.fullName",
+        "personalInfo.mobileNo",
+        "personalInfo.email",
+        "personalInfo.districtVillage",
+      ],
+      2: [
+        "businessInfo.odopProduct",
+        "businessInfo.businessName",
+        "businessInfo.yearStarted",
+      ],
+      3: [
+        "entityOwnership.entityType",
+        "entityOwnership.partOfSHGOrFPO",
+        "entityOwnership.gstRegistration",
+        "entityOwnership.productOwnershipType",
+        "entityOwnership.productStatus",
+      ],
+      4: ["marketSales.salesOutsideIndia"],
+      5: [
+        "operationsProduct.teamSize",
+        "operationsProduct.monthlyProduction",
+        "operationsProduct.productionType",
+        "operationsProduct.monthlyRevenue",
+        "operationsProduct.productDescription",
+      ],
+      6: [
+        "materialCertifications.localRawMaterial",
+        "supportGoals.oneYearGoal",
+        "termsAccepted",
+      ],
+    };
 
-    requiredFields.forEach((key) => {
-      const error = validateField(key, formData[key]);
+    // Get fields for current section
+    const fieldsToValidate = sectionFields[sectionNumber] || [];
+
+    // Validate each field
+    fieldsToValidate.forEach((fieldPath) => {
+      // Parse the field path to get the value
+      const pathParts = fieldPath.split(".");
+      let fieldValue;
+
+      if (pathParts.length === 1) {
+        fieldValue = formData[pathParts[0]];
+      } else if (pathParts.length === 2) {
+        fieldValue = formData[pathParts[0]][pathParts[1]];
+      } else if (pathParts.length === 3) {
+        fieldValue = formData[pathParts[0]][pathParts[1]][pathParts[2]];
+      }
+
+      const error = validateField(fieldPath, fieldValue);
       if (error) {
-        errors[key] = error;
+        errors[fieldPath] = error;
         isValid = false;
       }
     });
 
-    setValidationErrors(errors);
+    setValidationErrors({
+      ...validationErrors,
+      ...errors,
+    });
 
-    if (isValid) {
-      // Form is valid, reset form and show success message
-      setFormData({
-        // Reset to initial state
-        fullName: "",
-        mobile: "",
-        email: "",
-        districtVillage: "",
-        odopProduct: "",
-        businessName: "",
-        yearStarted: "",
-        entityType: "",
-        partOfSHG: "",
-        partOfSHGSpecify: "",
-        gstRegistered: "",
-        ownershipType: "",
-        productionStatus: "",
-        sellLocations: {
-          localMarkets: false,
-          withinDistrict: false,
-          withinMP: false,
-          outsideMP: false,
-          online: false,
-        },
-        soldOutsideIndia: "",
-        teamSize: "",
-        monthlyProduction: "",
-        packaging: "",
-        monthlyRevenue: "",
-        website: "",
-        describeProduct: "",
-        localRawMaterials: "",
-        certifications: {
-          gi: false,
-          fssai: false,
-        },
-        challenges: "",
-        supportRequired: [],
-        supportRequiredExtra: [],
-        oneYearGoal: "",
-        termsCheck: false,
-      });
-
-      setSuccessMessage(
-        "Your application has been submitted successfully. We will contact you soon."
-      );
-      setFormSubmitted(true);
-
-      // Clear success message after 8 seconds
-      setTimeout(() => {
-        setSuccessMessage("");
-      }, 8000);
-
-      // Scroll to success message
-      const successAlert = document.querySelector(".apply-success-alert");
-      if (successAlert) {
-        successAlert.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    }
+    return isValid;
   };
 
+  // Handle next section button click
   const handleNextSection = () => {
-    if (activeSection < 6) {
+    // Validate current section before proceeding
+    if (validateSection(activeSection)) {
       setActiveSection(activeSection + 1);
 
       // Scroll to top of form
@@ -247,14 +290,150 @@ const ApplySection = () => {
     }
   };
 
+  // Handle previous section button click
   const handlePrevSection = () => {
-    if (activeSection > 1) {
-      setActiveSection(activeSection - 1);
+    setActiveSection(activeSection - 1);
 
-      // Scroll to top of form
-      const formTop = document.querySelector(".apply-card");
-      if (formTop) {
-        formTop.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Scroll to top of form
+    const formTop = document.querySelector(".apply-card");
+    if (formTop) {
+      formTop.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate all sections
+    let allValid = true;
+    for (let i = 1; i <= 6; i++) {
+      if (!validateSection(i)) {
+        allValid = false;
+        setActiveSection(i); // Move to the first invalid section
+        break;
+      }
+    }
+
+    if (allValid) {
+      setIsSubmitting(true);
+
+      try {
+        // Prepare data for submission according to the model schema
+        const submitData = {
+          personalInfo: formData.personalInfo,
+          businessInfo: {
+            ...formData.businessInfo,
+            yearStarted: Number(formData.businessInfo.yearStarted),
+          },
+          entityOwnership: formData.entityOwnership,
+          marketSales: {
+            localMarkets: formData.marketSales.sellLocations.localMarkets
+              ? "Yes"
+              : "No",
+            withinDistrict: formData.marketSales.sellLocations.withinDistrict
+              ? "Yes"
+              : "No",
+            outsideDistrictWithinState: formData.marketSales.sellLocations
+              .outsideDistrictWithinState
+              ? "Yes"
+              : "No",
+            outsideState: formData.marketSales.sellLocations.outsideState
+              ? "Yes"
+              : "No",
+            online: formData.marketSales.sellLocations.online ? "Yes" : "No",
+            salesOutsideIndia: formData.marketSales.salesOutsideIndia,
+          },
+          operationsProduct: {
+            ...formData.operationsProduct,
+            teamSize: Number(formData.operationsProduct.teamSize),
+            monthlyProduction: Number(
+              formData.operationsProduct.monthlyProduction
+            ),
+            monthlyRevenue: Number(formData.operationsProduct.monthlyRevenue),
+          },
+          materialCertifications: formData.materialCertifications,
+          supportGoals: formData.supportGoals,
+        };
+
+        // Submit to API
+        const response = await axios.post(
+          "http://localhost:5000/api/applications/submit",
+          submitData
+        );
+        if (response.data.success) {
+          // Handle success
+          setFormSubmitted(true);
+          setSuccessMessage(
+            "Your application has been submitted successfully. We will contact you soon."
+          );
+        } else {
+          setFormSubmitted(false);
+          setSuccessMessage("Something Went Wrong");
+        }
+        // Reset form
+        setFormData({
+          personalInfo: {
+            fullName: "",
+            mobileNo: "",
+            email: "",
+            districtVillage: "",
+          },
+          businessInfo: {
+            odopProduct: "",
+            businessName: "",
+            yearStarted: "",
+          },
+          entityOwnership: {
+            entityType: "",
+            partOfSHGOrFPO: "",
+            partOfSHGOrFPOSpecify: "",
+            gstRegistration: "",
+            productOwnershipType: "",
+            productStatus: "",
+          },
+          marketSales: {
+            sellLocations: {
+              localMarkets: false,
+              withinDistrict: false,
+              outsideDistrictWithinState: false,
+              outsideState: false,
+              online: false,
+            },
+            salesOutsideIndia: "",
+          },
+          operationsProduct: {
+            teamSize: "",
+            monthlyProduction: "",
+            productionType: "",
+            monthlyRevenue: "",
+            websiteSocialMedia: "",
+            productDescription: "",
+          },
+          materialCertifications: {
+            localRawMaterial: "",
+            certifications: [],
+            challenges: "",
+          },
+          supportGoals: {
+            supportAreas: [],
+            supportAreasOther: "",
+            oneYearGoal: "",
+          },
+          termsAccepted: false,
+        });
+
+        // Clear success message after 8 seconds
+        setTimeout(() => {
+          setSuccessMessage("");
+        }, 8000);
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        setValidationErrors({
+          form: "There was an error submitting your application. Please try again later.",
+        });
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -293,6 +472,13 @@ const ApplySection = () => {
                   </p>
                 </div>
 
+                {/* Form validation error message */}
+                {validationErrors.form && (
+                  <div className="alert alert-danger mt-3" role="alert">
+                    {validationErrors.form}
+                  </div>
+                )}
+
                 {!formSubmitted ? (
                   <form className="apply-form" onSubmit={handleSubmit}>
                     {/* Progress indicator */}
@@ -320,7 +506,7 @@ const ApplySection = () => {
                       </div>
                     </div>
 
-                    {/* Section 1: Personal & Contact Information */}
+                    {/* Section 1: Personal Info */}
                     {activeSection === 1 && (
                       <div className="form-section active">
                         <h4 className="section-title">
@@ -330,79 +516,29 @@ const ApplySection = () => {
                         <div className="row g-4">
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label htmlFor="fullName" className="form-label">
+                              <label
+                                htmlFor="personalInfo.fullName"
+                                className="form-label"
+                              >
                                 Full Name <span className="required">*</span>
                               </label>
                               <input
                                 type="text"
                                 className={`form-control ${
-                                  validationErrors.fullName ? "is-invalid" : ""
+                                  validationErrors["personalInfo.fullName"]
+                                    ? "is-invalid"
+                                    : ""
                                 }`}
-                                id="fullName"
-                                name="fullName"
-                                value={formData.fullName}
+                                id="personalInfo.fullName"
+                                name="personalInfo.fullName"
+                                value={formData.personalInfo.fullName}
                                 onChange={handleInputChange}
                                 onBlur={handleBlur}
                                 placeholder="Your full name"
-                                required
                               />
-                              {validationErrors.fullName && (
+                              {validationErrors["personalInfo.fullName"] && (
                                 <div className="invalid-feedback">
-                                  {validationErrors.fullName}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-group">
-                              <label htmlFor="mobile" className="form-label">
-                                Mobile Number{" "}
-                                <span className="required">*</span>
-                              </label>
-                              <input
-                                type="tel"
-                                className={`form-control ${
-                                  validationErrors.mobile ? "is-invalid" : ""
-                                }`}
-                                id="mobile"
-                                name="mobile"
-                                value={formData.mobile}
-                                onChange={handleInputChange}
-                                onBlur={handleBlur}
-                                placeholder="10-digit mobile number"
-                                required
-                              />
-                              {validationErrors.mobile && (
-                                <div className="invalid-feedback">
-                                  {validationErrors.mobile}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-group">
-                              <label htmlFor="email" className="form-label">
-                                Email Address{" "}
-                                <span className="required">*</span>
-                              </label>
-                              <input
-                                type="email"
-                                className={`form-control ${
-                                  validationErrors.email ? "is-invalid" : ""
-                                }`}
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                onBlur={handleBlur}
-                                placeholder="youremail@example.com"
-                                required
-                              />
-                              {validationErrors.email && (
-                                <div className="invalid-feedback">
-                                  {validationErrors.email}
+                                  {validationErrors["personalInfo.fullName"]}
                                 </div>
                               )}
                             </div>
@@ -411,7 +547,69 @@ const ApplySection = () => {
                           <div className="col-md-6">
                             <div className="form-group">
                               <label
-                                htmlFor="districtVillage"
+                                htmlFor="personalInfo.mobileNo"
+                                className="form-label"
+                              >
+                                Mobile Number{" "}
+                                <span className="required">*</span>
+                              </label>
+                              <input
+                                type="tel"
+                                className={`form-control ${
+                                  validationErrors["personalInfo.mobileNo"]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                                id="personalInfo.mobileNo"
+                                name="personalInfo.mobileNo"
+                                value={formData.personalInfo.mobileNo}
+                                onChange={handleInputChange}
+                                onBlur={handleBlur}
+                                placeholder="10-digit mobile number"
+                              />
+                              {validationErrors["personalInfo.mobileNo"] && (
+                                <div className="invalid-feedback">
+                                  {validationErrors["personalInfo.mobileNo"]}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="col-md-6">
+                            <div className="form-group">
+                              <label
+                                htmlFor="personalInfo.email"
+                                className="form-label"
+                              >
+                                Email Address{" "}
+                                <span className="required">*</span>
+                              </label>
+                              <input
+                                type="email"
+                                className={`form-control ${
+                                  validationErrors["personalInfo.email"]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                                id="personalInfo.email"
+                                name="personalInfo.email"
+                                value={formData.personalInfo.email}
+                                onChange={handleInputChange}
+                                onBlur={handleBlur}
+                                placeholder="youremail@example.com"
+                              />
+                              {validationErrors["personalInfo.email"] && (
+                                <div className="invalid-feedback">
+                                  {validationErrors["personalInfo.email"]}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="col-md-6">
+                            <div className="form-group">
+                              <label
+                                htmlFor="personalInfo.districtVillage"
                                 className="form-label"
                               >
                                 District & Village{" "}
@@ -420,21 +618,28 @@ const ApplySection = () => {
                               <input
                                 type="text"
                                 className={`form-control ${
-                                  validationErrors.districtVillage
+                                  validationErrors[
+                                    "personalInfo.districtVillage"
+                                  ]
                                     ? "is-invalid"
                                     : ""
                                 }`}
-                                id="districtVillage"
-                                name="districtVillage"
-                                value={formData.districtVillage}
+                                id="personalInfo.districtVillage"
+                                name="personalInfo.districtVillage"
+                                value={formData.personalInfo.districtVillage}
                                 onChange={handleInputChange}
                                 onBlur={handleBlur}
                                 placeholder="Enter your district and village"
-                                required
                               />
-                              {validationErrors.districtVillage && (
+                              {validationErrors[
+                                "personalInfo.districtVillage"
+                              ] && (
                                 <div className="invalid-feedback">
-                                  {validationErrors.districtVillage}
+                                  {
+                                    validationErrors[
+                                      "personalInfo.districtVillage"
+                                    ]
+                                  }
                                 </div>
                               )}
                             </div>
@@ -453,7 +658,7 @@ const ApplySection = () => {
                       </div>
                     )}
 
-                    {/* Section 2: Product & Business Information */}
+                    {/* Section 2: Business Info */}
                     {activeSection === 2 && (
                       <div className="form-section active">
                         <h4 className="section-title">
@@ -464,7 +669,7 @@ const ApplySection = () => {
                           <div className="col-md-6">
                             <div className="form-group">
                               <label
-                                htmlFor="odopProduct"
+                                htmlFor="businessInfo.odopProduct"
                                 className="form-label"
                               >
                                 ODOP Product <span className="required">*</span>
@@ -472,21 +677,20 @@ const ApplySection = () => {
                               <input
                                 type="text"
                                 className={`form-control ${
-                                  validationErrors.odopProduct
+                                  validationErrors["businessInfo.odopProduct"]
                                     ? "is-invalid"
                                     : ""
                                 }`}
-                                id="odopProduct"
-                                name="odopProduct"
-                                value={formData.odopProduct}
+                                id="businessInfo.odopProduct"
+                                name="businessInfo.odopProduct"
+                                value={formData.businessInfo.odopProduct}
                                 onChange={handleInputChange}
                                 onBlur={handleBlur}
                                 placeholder="Enter your ODOP product"
-                                required
                               />
-                              {validationErrors.odopProduct && (
+                              {validationErrors["businessInfo.odopProduct"] && (
                                 <div className="invalid-feedback">
-                                  {validationErrors.odopProduct}
+                                  {validationErrors["businessInfo.odopProduct"]}
                                 </div>
                               )}
                             </div>
@@ -495,7 +699,7 @@ const ApplySection = () => {
                           <div className="col-md-6">
                             <div className="form-group">
                               <label
-                                htmlFor="businessName"
+                                htmlFor="businessInfo.businessName"
                                 className="form-label"
                               >
                                 Business Name
@@ -503,9 +707,9 @@ const ApplySection = () => {
                               <input
                                 type="text"
                                 className="form-control"
-                                id="businessName"
-                                name="businessName"
-                                value={formData.businessName}
+                                id="businessInfo.businessName"
+                                name="businessInfo.businessName"
+                                value={formData.businessInfo.businessName}
                                 onChange={handleInputChange}
                                 placeholder="Enter your business name"
                               />
@@ -515,20 +719,30 @@ const ApplySection = () => {
                           <div className="col-md-6">
                             <div className="form-group">
                               <label
-                                htmlFor="yearStarted"
+                                htmlFor="businessInfo.yearStarted"
                                 className="form-label"
                               >
                                 Year Started
                               </label>
                               <input
                                 type="text"
-                                className="form-control"
-                                id="yearStarted"
-                                name="yearStarted"
-                                value={formData.yearStarted}
+                                className={`form-control ${
+                                  validationErrors["businessInfo.yearStarted"]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                                id="businessInfo.yearStarted"
+                                name="businessInfo.yearStarted"
+                                value={formData.businessInfo.yearStarted}
                                 onChange={handleInputChange}
-                                placeholder="Enter the year you started"
+                                onBlur={handleBlur}
+                                placeholder="YYYY"
                               />
+                              {validationErrors["businessInfo.yearStarted"] && (
+                                <div className="invalid-feedback">
+                                  {validationErrors["businessInfo.yearStarted"]}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -560,57 +774,103 @@ const ApplySection = () => {
                         <div className="row g-4">
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label className="form-label">Entity Type</label>
+                              <label className="form-label">
+                                Entity Type <span className="required">*</span>
+                              </label>
                               <div className="radio-group">
-                                {["Prop", "LLP", "Pvt Ltd", "SHG"].map(
-                                  (type) => (
-                                    <div className="form-radio" key={type}>
-                                      <input
-                                        type="radio"
-                                        id={`entityType-${type}`}
-                                        name="entityType"
-                                        value={type}
-                                        checked={formData.entityType === type}
-                                        onChange={handleInputChange}
-                                      />
-                                      <label htmlFor={`entityType-${type}`}>
-                                        {type}
-                                      </label>
-                                    </div>
-                                  )
-                                )}
+                                {[
+                                  "Proprietary",
+                                  "Partnership",
+                                  "LLP",
+                                  "Ltd",
+                                  "SHG/FPO/Federation",
+                                ].map((type) => (
+                                  <div className="form-radio" key={type}>
+                                    <input
+                                      type="radio"
+                                      id={`entityOwnership.entityType-${type}`}
+                                      name="entityOwnership.entityType"
+                                      value={type}
+                                      checked={
+                                        formData.entityOwnership.entityType ===
+                                        type
+                                      }
+                                      onChange={handleInputChange}
+                                      onBlur={handleBlur}
+                                    />
+                                    <label
+                                      htmlFor={`entityOwnership.entityType-${type}`}
+                                    >
+                                      {type}
+                                    </label>
+                                  </div>
+                                ))}
                               </div>
+                              {validationErrors[
+                                "entityOwnership.entityType"
+                              ] && (
+                                <div className="text-danger mt-1">
+                                  {
+                                    validationErrors[
+                                      "entityOwnership.entityType"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           <div className="col-md-6">
                             <div className="form-group">
                               <label className="form-label">
-                                Part of SHG/FPO/Startup?
+                                Part of SHG/FPO?{" "}
+                                <span className="required">*</span>
                               </label>
                               <div className="radio-group">
                                 {["Yes", "No"].map((option) => (
                                   <div className="form-radio" key={option}>
                                     <input
                                       type="radio"
-                                      id={`partOfSHG-${option}`}
-                                      name="partOfSHG"
+                                      id={`entityOwnership.partOfSHGOrFPO-${option}`}
+                                      name="entityOwnership.partOfSHGOrFPO"
                                       value={option}
-                                      checked={formData.partOfSHG === option}
+                                      checked={
+                                        formData.entityOwnership
+                                          .partOfSHGOrFPO === option
+                                      }
                                       onChange={handleInputChange}
+                                      onBlur={handleBlur}
                                     />
-                                    <label htmlFor={`partOfSHG-${option}`}>
+                                    <label
+                                      htmlFor={`entityOwnership.partOfSHGOrFPO-${option}`}
+                                    >
                                       {option}
                                     </label>
                                   </div>
                                 ))}
                               </div>
-                              {formData.partOfSHG === "Yes" && (
+                              {validationErrors[
+                                "entityOwnership.partOfSHGOrFPO"
+                              ] && (
+                                <div className="text-danger mt-1">
+                                  {
+                                    validationErrors[
+                                      "entityOwnership.partOfSHGOrFPO"
+                                    ]
+                                  }
+                                </div>
+                              )}
+                              {formData.entityOwnership.partOfSHGOrFPO ===
+                                "Yes" && (
                                 <input
                                   type="text"
                                   className="form-control mt-2"
-                                  name="partOfSHGSpecify"
-                                  value={formData.partOfSHGSpecify}
+                                  id="entityOwnership.partOfSHGOrFPOSpecify"
+                                  name="entityOwnership.partOfSHGOrFPOSpecify"
+                                  value={
+                                    formData.entityOwnership
+                                      .partOfSHGOrFPOSpecify
+                                  }
                                   onChange={handleInputChange}
                                   placeholder="Please specify"
                                 />
@@ -621,87 +881,135 @@ const ApplySection = () => {
                           <div className="col-md-6">
                             <div className="form-group">
                               <label className="form-label">
-                                GST Registered
+                                GST Registered{" "}
+                                <span className="required">*</span>
                               </label>
                               <div className="radio-group">
                                 {["Yes", "No"].map((option) => (
                                   <div className="form-radio" key={option}>
                                     <input
                                       type="radio"
-                                      id={`gstRegistered-${option}`}
-                                      name="gstRegistered"
+                                      id={`entityOwnership.gstRegistration-${option}`}
+                                      name="entityOwnership.gstRegistration"
                                       value={option}
                                       checked={
-                                        formData.gstRegistered === option
+                                        formData.entityOwnership
+                                          .gstRegistration === option
                                       }
                                       onChange={handleInputChange}
+                                      onBlur={handleBlur}
                                     />
-                                    <label htmlFor={`gstRegistered-${option}`}>
+                                    <label
+                                      htmlFor={`entityOwnership.gstRegistration-${option}`}
+                                    >
                                       {option}
                                     </label>
                                   </div>
                                 ))}
                               </div>
+                              {validationErrors[
+                                "entityOwnership.gstRegistration"
+                              ] && (
+                                <div className="text-danger mt-1">
+                                  {
+                                    validationErrors[
+                                      "entityOwnership.gstRegistration"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           <div className="col-md-6">
                             <div className="form-group">
                               <label className="form-label">
-                                Product Ownership Type
+                                Product Ownership Type{" "}
+                                <span className="required">*</span>
                               </label>
                               <div className="radio-group">
                                 {[
                                   "Individual",
+                                  "Family",
+                                  "SHG/Collective",
                                   "Company",
-                                  "SHG/Cooperative",
-                                  "Group",
                                   "Others",
                                 ].map((type) => (
                                   <div className="form-radio" key={type}>
                                     <input
                                       type="radio"
-                                      id={`ownershipType-${type}`}
-                                      name="ownershipType"
+                                      id={`entityOwnership.productOwnershipType-${type}`}
+                                      name="entityOwnership.productOwnershipType"
                                       value={type}
-                                      checked={formData.ownershipType === type}
+                                      checked={
+                                        formData.entityOwnership
+                                          .productOwnershipType === type
+                                      }
                                       onChange={handleInputChange}
+                                      onBlur={handleBlur}
                                     />
-                                    <label htmlFor={`ownershipType-${type}`}>
+                                    <label
+                                      htmlFor={`entityOwnership.productOwnershipType-${type}`}
+                                    >
                                       {type}
                                     </label>
                                   </div>
                                 ))}
                               </div>
+                              {validationErrors[
+                                "entityOwnership.productOwnershipType"
+                              ] && (
+                                <div className="text-danger mt-1">
+                                  {
+                                    validationErrors[
+                                      "entityOwnership.productOwnershipType"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           <div className="col-md-6">
                             <div className="form-group">
                               <label className="form-label">
-                                Production Status
+                                Production Status{" "}
+                                <span className="required">*</span>
                               </label>
                               <div className="radio-group">
                                 {["Active", "Seasonal"].map((status) => (
                                   <div className="form-radio" key={status}>
                                     <input
                                       type="radio"
-                                      id={`productionStatus-${status}`}
-                                      name="productionStatus"
+                                      id={`entityOwnership.productStatus-${status}`}
+                                      name="entityOwnership.productStatus"
                                       value={status}
                                       checked={
-                                        formData.productionStatus === status
+                                        formData.entityOwnership
+                                          .productStatus === status
                                       }
                                       onChange={handleInputChange}
+                                      onBlur={handleBlur}
                                     />
                                     <label
-                                      htmlFor={`productionStatus-${status}`}
+                                      htmlFor={`entityOwnership.productStatus-${status}`}
                                     >
                                       {status}
                                     </label>
                                   </div>
                                 ))}
                               </div>
+                              {validationErrors[
+                                "entityOwnership.productStatus"
+                              ] && (
+                                <div className="text-danger mt-1">
+                                  {
+                                    validationErrors[
+                                      "entityOwnership.productStatus"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -749,29 +1057,34 @@ const ApplySection = () => {
                                     label: "Within district",
                                   },
                                   {
-                                    id: "withinMP",
+                                    id: "outsideDistrictWithinState",
                                     label: "Within Madhya Pradesh",
                                   },
                                   {
-                                    id: "outsideMP",
+                                    id: "outsideState",
                                     label: "Outside Madhya Pradesh",
                                   },
-                                  { id: "online", label: "Online" },
+                                  {
+                                    id: "online",
+                                    label: "Online",
+                                  },
                                 ].map((option) => (
                                   <div className="form-check" key={option.id}>
                                     <input
                                       type="checkbox"
                                       className="form-check-input"
-                                      id={`sellLocations.${option.id}`}
-                                      name={`sellLocations.${option.id}`}
+                                      id={`marketSales.sellLocations.${option.id}`}
+                                      name={`marketSales.sellLocations.${option.id}`}
                                       checked={
-                                        formData.sellLocations[option.id]
+                                        formData.marketSales.sellLocations[
+                                          option.id
+                                        ]
                                       }
                                       onChange={handleInputChange}
                                     />
                                     <label
                                       className="form-check-label"
-                                      htmlFor={`sellLocations.${option.id}`}
+                                      htmlFor={`marketSales.sellLocations.${option.id}`}
                                     >
                                       {option.label}
                                     </label>
@@ -784,29 +1097,43 @@ const ApplySection = () => {
                           <div className="col-12">
                             <div className="form-group">
                               <label className="form-label">
-                                Have you ever sold your products outside India?
+                                Have you ever sold your products outside India?{" "}
+                                <span className="required">*</span>
                               </label>
                               <div className="radio-group">
                                 {["Yes", "No"].map((option) => (
                                   <div className="form-radio" key={option}>
                                     <input
                                       type="radio"
-                                      id={`soldOutsideIndia-${option}`}
-                                      name="soldOutsideIndia"
+                                      id={`marketSales.salesOutsideIndia-${option}`}
+                                      name="marketSales.salesOutsideIndia"
                                       value={option}
                                       checked={
-                                        formData.soldOutsideIndia === option
+                                        formData.marketSales
+                                          .salesOutsideIndia === option
                                       }
                                       onChange={handleInputChange}
+                                      onBlur={handleBlur}
                                     />
                                     <label
-                                      htmlFor={`soldOutsideIndia-${option}`}
+                                      htmlFor={`marketSales.salesOutsideIndia-${option}`}
                                     >
                                       {option}
                                     </label>
                                   </div>
                                 ))}
                               </div>
+                              {validationErrors[
+                                "marketSales.salesOutsideIndia"
+                              ] && (
+                                <div className="text-danger mt-1">
+                                  {
+                                    validationErrors[
+                                      "marketSales.salesOutsideIndia"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -840,95 +1167,181 @@ const ApplySection = () => {
                         <div className="row g-4">
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label htmlFor="teamSize" className="form-label">
-                                Team Size
+                              <label
+                                htmlFor="operationsProduct.teamSize"
+                                className="form-label"
+                              >
+                                Team Size <span className="required">*</span>
                               </label>
                               <input
                                 type="text"
-                                className="form-control"
-                                id="teamSize"
-                                name="teamSize"
-                                value={formData.teamSize}
+                                className={`form-control ${
+                                  validationErrors["operationsProduct.teamSize"]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                                id="operationsProduct.teamSize"
+                                name="operationsProduct.teamSize"
+                                value={formData.operationsProduct.teamSize}
                                 onChange={handleInputChange}
+                                onBlur={handleBlur}
                                 placeholder="Enter your team size"
                               />
+                              {validationErrors[
+                                "operationsProduct.teamSize"
+                              ] && (
+                                <div className="invalid-feedback">
+                                  {
+                                    validationErrors[
+                                      "operationsProduct.teamSize"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           <div className="col-md-6">
                             <div className="form-group">
                               <label
-                                htmlFor="monthlyProduction"
+                                htmlFor="operationsProduct.monthlyProduction"
                                 className="form-label"
                               >
-                                Monthly Production
+                                Monthly Production{" "}
+                                <span className="required">*</span>
                               </label>
                               <input
                                 type="text"
-                                className="form-control"
-                                id="monthlyProduction"
-                                name="monthlyProduction"
-                                value={formData.monthlyProduction}
+                                className={`form-control ${
+                                  validationErrors[
+                                    "operationsProduct.monthlyProduction"
+                                  ]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                                id="operationsProduct.monthlyProduction"
+                                name="operationsProduct.monthlyProduction"
+                                value={
+                                  formData.operationsProduct.monthlyProduction
+                                }
                                 onChange={handleInputChange}
-                                placeholder="Enter monthly production"
+                                onBlur={handleBlur}
+                                placeholder="Enter monthly production quantity"
                               />
+                              {validationErrors[
+                                "operationsProduct.monthlyProduction"
+                              ] && (
+                                <div className="invalid-feedback">
+                                  {
+                                    validationErrors[
+                                      "operationsProduct.monthlyProduction"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label className="form-label">Packaging</label>
+                              <label className="form-label">
+                                Production Type{" "}
+                                <span className="required">*</span>
+                              </label>
                               <div className="radio-group">
-                                {["Self", "Outsourced"].map((option) => (
-                                  <div className="form-radio" key={option}>
+                                {["Self", "Outsourced"].map((type) => (
+                                  <div className="form-radio" key={type}>
                                     <input
                                       type="radio"
-                                      id={`packaging-${option}`}
-                                      name="packaging"
-                                      value={option}
-                                      checked={formData.packaging === option}
+                                      id={`operationsProduct.productionType-${type}`}
+                                      name="operationsProduct.productionType"
+                                      value={type}
+                                      checked={
+                                        formData.operationsProduct
+                                          .productionType === type
+                                      }
                                       onChange={handleInputChange}
+                                      onBlur={handleBlur}
                                     />
-                                    <label htmlFor={`packaging-${option}`}>
-                                      {option}
+                                    <label
+                                      htmlFor={`operationsProduct.productionType-${type}`}
+                                    >
+                                      {type}
                                     </label>
                                   </div>
                                 ))}
                               </div>
+                              {validationErrors[
+                                "operationsProduct.productionType"
+                              ] && (
+                                <div className="text-danger mt-1">
+                                  {
+                                    validationErrors[
+                                      "operationsProduct.productionType"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           <div className="col-md-6">
                             <div className="form-group">
                               <label
-                                htmlFor="monthlyRevenue"
+                                htmlFor="operationsProduct.monthlyRevenue"
                                 className="form-label"
                               >
-                                Monthly Revenue
+                                Monthly Revenue{" "}
+                                <span className="required">*</span>
                               </label>
                               <input
                                 type="text"
-                                className="form-control"
-                                id="monthlyRevenue"
-                                name="monthlyRevenue"
-                                value={formData.monthlyRevenue}
+                                className={`form-control ${
+                                  validationErrors[
+                                    "operationsProduct.monthlyRevenue"
+                                  ]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                                id="operationsProduct.monthlyRevenue"
+                                name="operationsProduct.monthlyRevenue"
+                                value={
+                                  formData.operationsProduct.monthlyRevenue
+                                }
                                 onChange={handleInputChange}
-                                placeholder="Enter monthly revenue"
+                                onBlur={handleBlur}
+                                placeholder="Enter monthly revenue (in ₹)"
                               />
+                              {validationErrors[
+                                "operationsProduct.monthlyRevenue"
+                              ] && (
+                                <div className="invalid-feedback">
+                                  {
+                                    validationErrors[
+                                      "operationsProduct.monthlyRevenue"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label htmlFor="website" className="form-label">
-                                Website / Social
+                              <label
+                                htmlFor="operationsProduct.websiteSocialMedia"
+                                className="form-label"
+                              >
+                                Website / Social Media
                               </label>
                               <input
                                 type="text"
                                 className="form-control"
-                                id="website"
-                                name="website"
-                                value={formData.website}
+                                id="operationsProduct.websiteSocialMedia"
+                                name="operationsProduct.websiteSocialMedia"
+                                value={
+                                  formData.operationsProduct.websiteSocialMedia
+                                }
                                 onChange={handleInputChange}
                                 placeholder="Enter website or social media link"
                               />
@@ -938,100 +1351,41 @@ const ApplySection = () => {
                           <div className="col-12">
                             <div className="form-group">
                               <label
-                                htmlFor="describeProduct"
+                                htmlFor="operationsProduct.productDescription"
                                 className="form-label"
                               >
-                                Describe Product
+                                Product Description{" "}
+                                <span className="required">*</span>
                               </label>
                               <textarea
-                                className="form-control"
-                                id="describeProduct"
-                                name="describeProduct"
+                                className={`form-control ${
+                                  validationErrors[
+                                    "operationsProduct.productDescription"
+                                  ]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                                id="operationsProduct.productDescription"
+                                name="operationsProduct.productDescription"
                                 rows="3"
-                                value={formData.describeProduct}
+                                value={
+                                  formData.operationsProduct.productDescription
+                                }
                                 onChange={handleInputChange}
-                                placeholder="Describe your product"
+                                onBlur={handleBlur}
+                                placeholder="Describe your product in detail"
                               ></textarea>
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-group">
-                              <label className="form-label">
-                                Local Raw Materials?
-                              </label>
-                              <div className="radio-group">
-                                {["Yes", "No"].map((option) => (
-                                  <div className="form-radio" key={option}>
-                                    <input
-                                      type="radio"
-                                      id={`localRawMaterials-${option}`}
-                                      name="localRawMaterials"
-                                      value={option}
-                                      checked={
-                                        formData.localRawMaterials === option
-                                      }
-                                      onChange={handleInputChange}
-                                    />
-                                    <label
-                                      htmlFor={`localRawMaterials-${option}`}
-                                    >
-                                      {option}
-                                    </label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-group">
-                              <label className="form-label">
-                                Certifications
-                              </label>
-                              <div className="checkbox-group">
-                                {[
-                                  { id: "gi", label: "GI" },
-                                  { id: "fssai", label: "FSSAI" },
-                                ].map((cert) => (
-                                  <div className="form-check" key={cert.id}>
-                                    <input
-                                      type="checkbox"
-                                      className="form-check-input"
-                                      id={`certifications.${cert.id}`}
-                                      name={`certifications.${cert.id}`}
-                                      checked={formData.certifications[cert.id]}
-                                      onChange={handleInputChange}
-                                    />
-                                    <label
-                                      className="form-check-label"
-                                      htmlFor={`certifications.${cert.id}`}
-                                    >
-                                      {cert.label}
-                                    </label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="col-12">
-                            <div className="form-group">
-                              <label
-                                htmlFor="challenges"
-                                className="form-label"
-                              >
-                                Challenges
-                              </label>
-                              <textarea
-                                className="form-control"
-                                id="challenges"
-                                name="challenges"
-                                rows="3"
-                                value={formData.challenges}
-                                onChange={handleInputChange}
-                                placeholder="Describe the challenges you face"
-                              ></textarea>
+                              {validationErrors[
+                                "operationsProduct.productDescription"
+                              ] && (
+                                <div className="invalid-feedback">
+                                  {
+                                    validationErrors[
+                                      "operationsProduct.productDescription"
+                                    ]
+                                  }
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1055,50 +1409,84 @@ const ApplySection = () => {
                       </div>
                     )}
 
-                    {/* Section 6: Support & Goals */}
+                    {/* Section 6: Materials, Certifications & Support Goals */}
                     {activeSection === 6 && (
                       <div className="form-section active">
-                        <h4 className="section-title">Support & Goals</h4>
+                        <h4 className="section-title">
+                          Materials, Certifications & Support Goals
+                        </h4>
 
                         <div className="row g-4">
-                          <div className="col-12">
+                          <div className="col-md-6">
                             <div className="form-group">
                               <label className="form-label">
-                                Support Required
+                                Do you use local raw materials?{" "}
+                                <span className="required">*</span>
+                              </label>
+                              <div className="radio-group">
+                                {["Yes", "No"].map((option) => (
+                                  <div className="form-radio" key={option}>
+                                    <input
+                                      type="radio"
+                                      id={`materialCertifications.localRawMaterial-${option}`}
+                                      name="materialCertifications.localRawMaterial"
+                                      value={option}
+                                      checked={
+                                        formData.materialCertifications
+                                          .localRawMaterial === option
+                                      }
+                                      onChange={handleInputChange}
+                                      onBlur={handleBlur}
+                                    />
+                                    <label
+                                      htmlFor={`materialCertifications.localRawMaterial-${option}`}
+                                    >
+                                      {option}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                              {validationErrors[
+                                "materialCertifications.localRawMaterial"
+                              ] && (
+                                <div className="text-danger mt-1">
+                                  {
+                                    validationErrors[
+                                      "materialCertifications.localRawMaterial"
+                                    ]
+                                  }
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="col-md-6">
+                            <div className="form-group">
+                              <label className="form-label">
+                                Certifications
                               </label>
                               <div className="checkbox-group">
                                 {[
-                                  "Finance / Funding",
-                                  "Product Innovation",
-                                  "Branding & Packaging",
-                                  "Market Linkages",
-                                  "Digital Transformation",
-                                  "Certificate Support",
-                                  "Others",
-                                ].map((support) => (
-                                  <div className="form-check" key={support}>
+                                  { value: "FSSAI", label: "FSSAI" },
+                                  { value: "Others", label: "Others" },
+                                ].map((cert) => (
+                                  <div className="form-check" key={cert.value}>
                                     <input
                                       type="checkbox"
                                       className="form-check-input"
-                                      id={`supportRequired-${support.replace(
-                                        /\s+/g,
-                                        ""
-                                      )}`}
-                                      name="supportRequired"
-                                      value={support}
-                                      checked={formData.supportRequired.includes(
-                                        support
+                                      id={`materialCertifications.certifications-${cert.value}`}
+                                      name="materialCertifications.certifications"
+                                      value={cert.value}
+                                      checked={formData.materialCertifications.certifications.includes(
+                                        cert.value
                                       )}
                                       onChange={handleInputChange}
                                     />
                                     <label
                                       className="form-check-label"
-                                      htmlFor={`supportRequired-${support.replace(
-                                        /\s+/g,
-                                        ""
-                                      )}`}
+                                      htmlFor={`materialCertifications.certifications-${cert.value}`}
                                     >
-                                      {support}
+                                      {cert.label}
                                     </label>
                                   </div>
                                 ))}
@@ -1109,20 +1497,133 @@ const ApplySection = () => {
                           <div className="col-12">
                             <div className="form-group">
                               <label
-                                htmlFor="oneYearGoal"
+                                htmlFor="materialCertifications.challenges"
                                 className="form-label"
                               >
-                                1-Year Goal
+                                Challenges Faced
                               </label>
                               <textarea
                                 className="form-control"
-                                id="oneYearGoal"
-                                name="oneYearGoal"
+                                id="materialCertifications.challenges"
+                                name="materialCertifications.challenges"
                                 rows="3"
-                                value={formData.oneYearGoal}
+                                value={
+                                  formData.materialCertifications.challenges
+                                }
                                 onChange={handleInputChange}
-                                placeholder="Describe your 1-Year Goal"
+                                placeholder="Describe any challenges you face in your business"
                               ></textarea>
+                            </div>
+                          </div>
+
+                          <div className="col-12">
+                            <div className="form-group">
+                              <label className="form-label">
+                                Areas where you need support
+                              </label>
+                              <div className="checkbox-group">
+                                {[
+                                  {
+                                    value: "Finance & Funding",
+                                    label: "Finance & Funding",
+                                  },
+                                  {
+                                    value: "Product Innovation",
+                                    label: "Product Innovation",
+                                  },
+                                  {
+                                    value: "Branding & Packaging",
+                                    label: "Branding & Packaging",
+                                  },
+                                  {
+                                    value: "Market Linkages",
+                                    label: "Market Linkages",
+                                  },
+                                  {
+                                    value: "Digital Transformation",
+                                    label: "Digital Transformation",
+                                  },
+                                  {
+                                    value: "Certification",
+                                    label: "Certification",
+                                  },
+                                  { value: "Others", label: "Others" },
+                                ].map((support) => (
+                                  <div
+                                    className="form-check"
+                                    key={support.value}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      className="form-check-input"
+                                      id={`supportGoals.supportAreas-${support.value.replace(
+                                        /\s+/g,
+                                        ""
+                                      )}`}
+                                      name="supportGoals.supportAreas"
+                                      value={support.value}
+                                      checked={formData.supportGoals.supportAreas.includes(
+                                        support.value
+                                      )}
+                                      onChange={handleInputChange}
+                                    />
+                                    <label
+                                      className="form-check-label"
+                                      htmlFor={`supportGoals.supportAreas-${support.value.replace(
+                                        /\s+/g,
+                                        ""
+                                      )}`}
+                                    >
+                                      {support.label}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                              {formData.supportGoals.supportAreas.includes(
+                                "Others"
+                              ) && (
+                                <input
+                                  type="text"
+                                  className="form-control mt-2"
+                                  id="supportGoals.supportAreasOther"
+                                  name="supportGoals.supportAreasOther"
+                                  value={
+                                    formData.supportGoals.supportAreasOther
+                                  }
+                                  onChange={handleInputChange}
+                                  placeholder="Please specify other support areas"
+                                />
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="col-12">
+                            <div className="form-group">
+                              <label
+                                htmlFor="supportGoals.oneYearGoal"
+                                className="form-label"
+                              >
+                                1-Year Goal <span className="required">*</span>
+                              </label>
+                              <textarea
+                                className={`form-control ${
+                                  validationErrors["supportGoals.oneYearGoal"]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                                id="supportGoals.oneYearGoal"
+                                name="supportGoals.oneYearGoal"
+                                rows="3"
+                                value={formData.supportGoals.oneYearGoal}
+                                onChange={handleInputChange}
+                                onBlur={handleBlur}
+                                placeholder="Describe your business goals for the next year"
+                              ></textarea>
+                              {validationErrors["supportGoals.oneYearGoal"] && (
+                                <div className="invalid-feedback">
+                                  {validationErrors["supportGoals.oneYearGoal"]}
+                                </div>
+                              )}
                             </div>
                           </div>
 
@@ -1131,49 +1632,62 @@ const ApplySection = () => {
                               <div className="form-check">
                                 <input
                                   className={`form-check-input ${
-                                    validationErrors.termsCheck
+                                    validationErrors["termsAccepted"]
                                       ? "is-invalid"
                                       : ""
                                   }`}
                                   type="checkbox"
-                                  id="termsCheck"
-                                  name="termsCheck"
-                                  checked={formData.termsCheck}
+                                  id="termsAccepted"
+                                  name="termsAccepted"
+                                  checked={formData.termsAccepted}
                                   onChange={handleInputChange}
                                   onBlur={handleBlur}
-                                  required
                                 />
                                 <label
                                   className="form-check-label"
-                                  htmlFor="termsCheck"
+                                  htmlFor="termsAccepted"
                                 >
                                   I agree to the{" "}
                                   <a href="#terms">terms and conditions</a> and
-                                  consent to the processing of my personal data
+                                  consent to the processing of my personal data{" "}
+                                  <span className="required">*</span>
                                 </label>
-                                {validationErrors.termsCheck && (
-                                  <div className="invalid-feedback">
-                                    {validationErrors.termsCheck}
+                                {validationErrors["termsAccepted"] && (
+                                  <div className="invalid-feedback d-block">
+                                    {validationErrors["termsAccepted"]}
                                   </div>
                                 )}
                               </div>
                             </div>
                           </div>
+                        </div>
 
-                          <div className="col-12">
-                            <div className="form-navigation final-buttons">
-                              <button
-                                type="button"
-                                className="btn prev-btn"
-                                onClick={handlePrevSection}
-                              >
-                                <i className="fas fa-arrow-left"></i> Previous
-                              </button>
-                              <button type="submit" className="btn apply-btn">
-                                <span>Submit Application</span>
-                              </button>
-                            </div>
-                          </div>
+                        <div className="form-navigation final-buttons">
+                          <button
+                            type="button"
+                            className="btn prev-btn"
+                            onClick={handlePrevSection}
+                          >
+                            <i className="fas fa-arrow-left"></i> Previous
+                          </button>
+                          <button
+                            type="submit"
+                            className="btn apply-btn"
+                            disabled={isSubmitting}
+                          >
+                            {isSubmitting ? (
+                              <>
+                                <span
+                                  className="spinner-border spinner-border-sm me-2"
+                                  role="status"
+                                  aria-hidden="true"
+                                ></span>
+                                Submitting...
+                              </>
+                            ) : (
+                              <span>Submit Application</span>
+                            )}
+                          </button>
                         </div>
                       </div>
                     )}
@@ -1187,7 +1701,10 @@ const ApplySection = () => {
                     <p>{successMessage}</p>
                     <button
                       className="btn reset-btn"
-                      onClick={() => setFormSubmitted(false)}
+                      onClick={() => {
+                        setFormSubmitted(false);
+                        setActiveSection(1);
+                      }}
                     >
                       Submit Another Application
                     </button>
@@ -1229,8 +1746,9 @@ const ApplySection = () => {
         </div>
       </div>
 
-      {/* Add CSS for the new form sections */}
+      {/* CSS for the form styling */}
       <style jsx>{`
+        /* Form progress indicator */
         .form-progress {
           margin-bottom: 2rem;
           overflow-x: auto;
@@ -1267,12 +1785,12 @@ const ApplySection = () => {
 
         .progress-step.active .step-number,
         .progress-step.completed .step-number {
-          background-color: #007bff;
+          background-color: #4a90e2;
           color: white;
         }
 
         .progress-step.completed::after {
-          background-color: #007bff;
+          background-color: #4a90e2;
         }
 
         .step-number {
@@ -1301,6 +1819,7 @@ const ApplySection = () => {
           color: #333;
         }
 
+        /* Form sections */
         .form-section {
           display: none;
         }
@@ -1326,6 +1845,7 @@ const ApplySection = () => {
           color: #333;
         }
 
+        /* Navigation buttons */
         .form-navigation {
           display: flex;
           justify-content: space-between;
@@ -1362,6 +1882,7 @@ const ApplySection = () => {
           background-color: #3a7bd5;
         }
 
+        /* Form controls */
         .form-group {
           margin-bottom: 1.5rem;
         }
@@ -1388,6 +1909,7 @@ const ApplySection = () => {
           box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
         }
 
+        /* Radio and checkbox groups */
         .radio-group,
         .checkbox-group {
           display: flex;
@@ -1409,11 +1931,13 @@ const ApplySection = () => {
           margin-right: 0.5rem;
         }
 
+        /* Validation styling */
         .is-invalid {
           border-color: #dc3545;
         }
 
-        .invalid-feedback {
+        .invalid-feedback,
+        .text-danger {
           display: block;
           width: 100%;
           margin-top: 0.25rem;
@@ -1421,6 +1945,7 @@ const ApplySection = () => {
           color: #dc3545;
         }
 
+        /* Submit button */
         .apply-btn {
           padding: 0.75rem 2rem;
           background-color: #28a745;
@@ -1436,6 +1961,13 @@ const ApplySection = () => {
           transform: translateY(-2px);
         }
 
+        .apply-btn:disabled {
+          background-color: #6c757d;
+          transform: none;
+          cursor: not-allowed;
+        }
+
+        /* Success message */
         .apply-success-alert {
           text-align: center;
           padding: 2rem;
@@ -1462,6 +1994,104 @@ const ApplySection = () => {
 
         .reset-btn:hover {
           background-color: #5a6268;
+        }
+
+        /* Info cards */
+        .apply-info-cards {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1.5rem;
+          justify-content: center;
+          margin-top: 2rem;
+        }
+
+        .apply-info-card {
+          flex: 1;
+          min-width: 200px;
+          max-width: 300px;
+          background-color: #f8f9fa;
+          border-radius: 8px;
+          padding: 1.5rem;
+          text-align: center;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .apply-info-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-icon {
+          font-size: 2rem;
+          color: #4a90e2;
+          margin-bottom: 1rem;
+        }
+
+        .apply-info-card h4 {
+          margin-bottom: 0.5rem;
+          color: #333;
+        }
+
+        .apply-info-card p {
+          color: #666;
+          font-weight: 500;
+        }
+
+        /* Decorative elements */
+        .apply-decoration-dot {
+          position: absolute;
+          border-radius: 50%;
+          background-color: rgba(74, 144, 226, 0.1);
+          z-index: -1;
+        }
+
+        .apply-decoration-dot-1 {
+          width: 200px;
+          height: 200px;
+          top: 5%;
+          left: 5%;
+        }
+
+        .apply-decoration-dot-2 {
+          width: 300px;
+          height: 300px;
+          bottom: 10%;
+          right: 5%;
+        }
+
+        .apply-decoration-line {
+          position: absolute;
+          width: 100%;
+          height: 3px;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(74, 144, 226, 0.2),
+            transparent
+          );
+          top: 30%;
+          z-index: -1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+          .radio-group,
+          .checkbox-group {
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+
+          .form-navigation {
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .prev-btn,
+          .next-btn,
+          .apply-btn {
+            width: 100%;
+          }
         }
       `}</style>
     </section>
